@@ -6,6 +6,7 @@ threshold = 80; % percentage
 %% 
 anchor = rand(anchor_number,2)*100;
 sensor = rand(sensor_number,2)*100;
+figure
 plot(anchor(:,1), anchor(:,2),'bo', 'LineWidth',3);
 hold on;
 plot(sensor(:,1), sensor(:,2),'ro', 'LineWidth',3);
@@ -28,7 +29,7 @@ end
 M_sa = zeros(sensor_number+2, sensor_number+2, anchor_number, sensor_number);
 for i = 1:1:anchor_number
     for j = 1:1:sensor_number
-        M_sa(:,:,i,j) = [anchor(i,:)'; -indicator(j,:)']*[anchor(i,:) -indicator(j,:)];
+        M_sa(:,:,i,j) = [anchor(i,:)'; indicator(j,:)']*[anchor(i,:) indicator(j,:)];
     end
 end
 %% Ground Truth
@@ -95,3 +96,31 @@ cvx_end
 diff = trace((X-Z)*(X-Z)');
 disp('The difference of reconstruction matrix is: ')
 disp(diff)
+
+%% reconstruction without rank-2 approx
+figure
+plot(Z(3:end,1), Z(3:end,2),'r*', 'LineWidth',5);
+hold on;
+plot(Z(3:end,1), Z(3:end,2),'Bo', 'LineWidth',2);
+hold on
+xlim([0,100]);
+ylim([0,100]);
+title('position of anchor and sensor');
+
+%% Rank 2 approximation
+[U,S,V] = svd(Z)
+Z_2 = U(:,1:2) * S(1:2,1:2) * V(:,1:2)';
+diff_2 = trace((X-Z_2)*(X-Z_2)');
+disp('The difference of reconstruction matrix(rank2 approx) is: ')
+disp(diff)
+
+figure
+plot(sensor(:,1), sensor(:,2),'r*', 'LineWidth',5);
+hold on
+plot(Z_2(3:end,1), Z_2(3:end,2),'bo', 'LineWidth',2);
+hold on
+% hold on
+xlim([0,100]);
+ylim([0,100]);
+title('position of anchor and sensor approx rank2');
+
