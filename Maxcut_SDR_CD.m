@@ -1,11 +1,11 @@
 %% Initialize
 clear all;
 num_iter = 20;
-Nlist = [4,8,16,20]
+Nlist = [4, 8, 16, 20]
 result_truths = zeros([size(Nlist,2),num_iter]);
 result_SDRs = zeros([size(Nlist,2),num_iter]);
 result_CDs = zeros([size(Nlist,2),num_iter]);
-p = 0.99;
+p=0.50
 %% SDR QCQP 
 for idx_N = 1:size(Nlist,2)
     N = Nlist(idx_N)
@@ -13,8 +13,8 @@ for idx_N = 1:size(Nlist,2)
         idx_iter
         % Adjacency Matrix
         A = randi(2,N,N) - 1;
-        Mask = rand([N,N])>= 1-p;
-        A = A.* Mask;
+        Mask = rand(N,N)>=1-p;
+        A = A.*Mask;
         A = A - tril(A,-1) + triu(A,1)';
         % Laplacian Matrix
         D = diag(A * ones(N,1));
@@ -81,20 +81,22 @@ result_SDRs./result_truth;
 bound_ratio = mean(result_SDRs./result_truths, 2)
 CD_ration = mean(result_CDs./result_truths,2)
 figure
-plot(log(Nlist),bound_ratio,'r-o',log(Nlist),CD_ration,'b-*' )
+plot(log(Nlist),bound_ratio,'r-o',log(Nlist),CD_ration,'b-o' )
+title('Max cut : log N vs (SDR relax bound/GT, CD /GT)','FontSize',20)
+xlabel('log N','FontSize',20)
+ylabel('ratio','FontSize',20)
+legend({'SDR relaxation bound ratio','CD solver result ration'},'Fontsize',15);
 
-title('Max cut : log N vs (upper bound/groud truth,CD solver/groud truth)','FontSize',15)
-xlabel('log N','FontSize',15)
-ylabel('ratio','FontSize',15)
-legend({'SDR relaxatino bound ratio','CD solver result ratio'},'FontSize',15);
 %%
-mean(result_CDs,2)
-figure 
-plot(log(Nlist),mean(result_truths,2),'r-o',...
-    log(Nlist),mean(result_SDRs,2),'g-o',...
-    log(Nlist),mean(result_CDs,2),'b-o' );
 
-title('Max cut : log N vs max Cut result','FontSize',15)
+figure
+plot(log(Nlist),mean(result_SDRs,2),'r-o'...
+    ,log(Nlist),mean(result_truths,2),'g-o',...
+    log(Nlist),mean(result_CDs,2),'b-o')
+title('Max cut : log N vs Maxcut','FontSize',20)
 xlabel('log N','FontSize',15)
-ylabel('max cut','FontSize',15)
-legend({'SDR relaxatino upper bound','groud truth', 'CD solver result','FontSize'},'FontSize',15)
+ylabel('Maxcut','FontSize',15)
+legend({'SDR relaxation bound','Grouth Truth','CD solver'},'Fontsize',15);
+
+
+
